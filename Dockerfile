@@ -1,8 +1,7 @@
 FROM php:fpm
 
 # Install other needed extensions
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
+RUN buildDeps=" \
 		libfreetype6-dev \
 		libjpeg62-turbo-dev \
 		libmcrypt-dev \
@@ -17,9 +16,10 @@ RUN apt-get update \
 		freetds-dev \
 		libssl-dev \
 		openssl \
-	&& rm -rf /var/lib/apt/lists/*
-
-RUN docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu --with-freetype-dir=/usr/lib/x86_64-linux-gnu \
+	"; \
+	set -x \
+	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends && rm -rf /var/lib/apt/lists/* \
+	&& docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu --with-freetype-dir=/usr/lib/x86_64-linux-gnu \
 	&& pecl install redis \
 	&& pecl install memcached \
 	&& docker-php-ext-install \
