@@ -16,20 +16,10 @@ RUN apt-get update \
 		libmemcached-dev \
 		freetds-dev \
 		libssl-dev \
-		openssl
+		openssl \
 	&& rm -rf /var/lib/apt/lists/*
 
-RUN buildDeps=" \
-		libfreetype6-dev \
-		libjpeg-dev \
-		libmcrypt-dev \
-		libpng12-dev \
-		zlib1g-dev \
-		libmemcached-dev \
-	"; \
-	set -x \
-	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends && rm -rf /var/lib/apt/lists/* \
-	&& docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu --with-freetype-dir=/usr/lib/x86_64-linux-gnu \
+RUN docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu --with-freetype-dir=/usr/lib/x86_64-linux-gnu \
 	&& pecl install redis \
 	&& pecl install memcached \
 	&& docker-php-ext-install \
