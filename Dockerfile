@@ -1,19 +1,52 @@
 FROM php:fpm
-RUN docker-php-ext-install mysqli
 
-#fix docker-php-ext-install bug
-RUN sed -i 's/docker-php-\(ext-$ext.ini\)/\1/' /usr/local/bin/docker-php-ext-install
+# Install other needed extensions
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		libfreetype6-dev \
+		libjpeg62-turbo-dev \
+		libmcrypt-dev \
+		libpng12-dev \
+		zlib1g-dev \
+		libicu-dev \
+		g++ \
+		unixodbc-dev \
+		libxml2-dev \
+		libaio-dev \
+		libmemcached-dev \
+		freetds-dev \
+		libssl-dev \
+		openssl
+	&& rm -rf /var/lib/apt/lists/*
 
-# Install memcache extension
-RUN set -x \
-    && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
-    && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/php7.zip \
-    && unzip php7 \
-    && cd pecl-memcache-php7 \
-    && /usr/local/bin/phpize \
-    && ./configure --with-php-config=/usr/local/bin/php-config \
-    && make \
-    && make install \
-    && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
-    && rm -rf /tmp/pecl-memcache-php7 php7.zip
+RUN buildDeps=" \
+		libfreetype6-dev \
+		libjpeg-dev \
+		libmcrypt-dev \
+		libpng12-dev \
+		zlib1g-dev \
+		libmemcached-dev \
+	"; \
+	set -x \
+	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends && rm -rf /var/lib/apt/lists/* \
+	&& docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu --with-freetype-dir=/usr/lib/x86_64-linux-gnu \
+	&& pecl install redis \
+	&& pecl install memcached \
+	&& docker-php-ext-install \
+			iconv \
+			gd \
+			mbstring \
+			mcrypt \
+			mysqli \
+			pdo_mysql \
+			sockets \
+			zip \
+	
+	&& docker-php-ext-enable \
+			redis \
+			memcached \
+			opcache
+	
+	&& apt-get purge -y --auto-remove $buildDeps \
+	&& cd /usr/src/php \
+	&& make clean
