@@ -45,7 +45,7 @@ RUN buildDeps=" \
 	&& docker-php-ext-enable \
 			redis \
 			memcached \
-			opcache
+			opcache \
 	
 	&& apt-get purge -y --auto-remove $buildDeps \
 	&& cd /usr/src/php \
