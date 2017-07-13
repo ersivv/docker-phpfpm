@@ -1,4 +1,11 @@
 FROM php:fpm
+
+# Install util
+RUN apt-get update && apt-get install --no-install-recommends -y \
+        wget \
+        git \
+        unzip \
+		curl
 			
 # gd
 RUN buildRequirements="libpng12-dev libjpeg-dev libfreetype6-dev" \
