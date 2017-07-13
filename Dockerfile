@@ -52,7 +52,7 @@ RUN buildRequirements="libmemcached-dev" \
     && mkdir -p /usr/src/php/ext/memcached \
     && tar -C /usr/src/php/ext/memcached -zxvf /tmp/memcached.tar.gz --strip 1 \
 	&& docker-php-ext-configure memcached \
-	&& docker-php-ext-install memcached
+	&& docker-php-ext-install memcached \
 	&& apt-get purge -y ${buildRequirements} \
 	&& rm -rf /var/lib/apt/lists/*
 	
